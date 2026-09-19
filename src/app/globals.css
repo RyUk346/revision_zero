@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white text-steel-800 antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-steel-900;
+  }
+  /* Respect users who prefer reduced motion: stop the hero zoom/transitions. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    .animate-kenburns,
+    .animate-fade-up {
+      animation: none !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .section {
+    @apply py-16 md:py-24;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-accent-500 text-white hover:bg-accent-600 focus:ring-accent-500;
+  }
+  .btn-dark {
+    @apply btn bg-steel-900 text-white hover:bg-steel-800 focus:ring-steel-700;
+  }
+  .btn-outline {
+    @apply btn border border-steel-300 bg-transparent text-steel-800 hover:bg-steel-50 focus:ring-steel-400;
+  }
+  .btn-light {
+    @apply btn bg-white text-steel-900 hover:bg-steel-100 focus:ring-white;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-steel-700;
+  }
+  .input {
+    @apply block w-full rounded-md border border-steel-300 bg-white px-3.5 py-2.5 text-sm text-steel-900 shadow-sm placeholder:text-steel-400 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500;
+  }
+  .card {
+    @apply rounded-xl border border-steel-200 bg-white shadow-sm;
+  }
+  .eyebrow {
+    @apply mb-3 inline-block text-sm font-bold uppercase tracking-[0.2em] text-accent-600;
+  }
+  .prose-page {
+    @apply space-y-4 text-base leading-relaxed text-steel-600;
+  }
+}
+
+/* Simple admin scrollbar polish */
+.admin-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.admin-scroll::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-steel-300;
+}

@@ -1,0 +1,220 @@
+// Prisma schema for the Revision Zero style steel-detailing website + CMS.
+// Datasource: SQLite (file-based, zero external services required).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth (NextAuth credentials provider backs onto this table)
+// ---------------------------------------------------------------------------
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String // bcrypt hash
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Projects + categories (Animation, Mining & Resources, Bridges, etc.)
+// ---------------------------------------------------------------------------
+model ProjectCategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  projects    Project[]
+}
+
+model Project {
+  id          String          @id @default(cuid())
+  title       String
+  slug        String          @unique
+  summary     String? // short card text
+  description String? // long body
+  client      String?
+  location    String?
+  year        String?
+  image       String? // real image URL (falls back to gradient)
+  videoUrl    String? // optional MP4 (animation projects)
+  imageColor  String          @default("#34465e") // placeholder gradient seed
+  featured    Boolean         @default(false)
+  published   Boolean         @default(true)
+  order       Int             @default(0)
+  categoryId  String
+  category    ProjectCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Services
+// ---------------------------------------------------------------------------
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  summary     String?
+  description String?
+  icon        String   @default("Wrench") // lucide-react icon name
+  image       String?
+  imageColor  String   @default("#3f5573")
+  published   Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// News / blog
+// ---------------------------------------------------------------------------
+model NewsPost {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  excerpt     String?
+  content     String?
+  author      String    @default("Revision Zero")
+  image       String?
+  imageColor  String    @default("#516b8c")
+  published   Boolean   @default(true)
+  publishedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Team members (Who We Are)
+// ---------------------------------------------------------------------------
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  bio       String?
+  email     String?
+  linkedin  String?
+  image     String?
+  imageColor String  @default("#2d3c50")
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Careers (job postings) + applications
+// ---------------------------------------------------------------------------
+model JobPosting {
+  id           String           @id @default(cuid())
+  title        String
+  slug         String           @unique
+  location     String           @default("Manila, Philippines")
+  type         String           @default("Full-time")
+  department   String?
+  summary      String?
+  description  String?
+  requirements String?
+  published    Boolean          @default(true)
+  order        Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  applications JobApplication[]
+}
+
+model JobApplication {
+  id         String      @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  message    String?
+  linkedin   String?
+  status     String      @default("new") // new | reviewing | interviewed | rejected | hired
+  jobId      String?
+  job        JobPosting? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  createdAt  DateTime    @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Contact form submissions
+// ---------------------------------------------------------------------------
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  subject   String?
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// "Schedule a call" requests
+// ---------------------------------------------------------------------------
+model CallRequest {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  company       String?
+  preferredDate String?
+  preferredTime String?
+  topic         String?
+  message       String?
+  status        String   @default("new") // new | scheduled | done | cancelled
+  createdAt     DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Partners / software suppliers (logo strip)
+// ---------------------------------------------------------------------------
+model Partner {
+  id        String   @id @default(cuid())
+  name      String
+  category  String   @default("Software") // Software | Accreditation
+  logo      String? // logo image URL
+  url       String?
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Singleton site settings (company info, contact details, hero copy)
+// ---------------------------------------------------------------------------
+model SiteSetting {
+  id           String   @id @default("site")
+  companyName  String   @default("Revision Zero")
+  tagline      String   @default("Steel Detailers")
+  heroHeadline String   @default("Steel Detailers")
+  heroSubtext  String   @default("Innovative. Focused. Collaborative.")
+  heroImage    String?
+  heroImages   String? // newline-separated URLs for the hero slideshow
+  logoLight    String?
+  logoDark     String?
+  aboutTitle   String   @default("Welcome to Revision Zero")
+  aboutText    String   @default("")
+  aboutImage   String?
+  email        String   @default("info@revisionzero.local")
+  phone        String   @default("+63 (2) 8650-3478")
+  address      String   @default("Manila, Philippines")
+  facebook     String?
+  linkedin     String?
+  brochureUrl  String?
+  footerNote   String   @default("It's in the detail.")
+  updatedAt    DateTime @updatedAt
+}
